@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  name_prefix = "${split("/", "${data.aws_caller_identity.current.arn}")[1]}-httpapi"
+  name_prefix = "${split("/", "${lower(data.aws_caller_identity.current.arn)}")[1]}-httpapi"
 }
 
 resource "aws_dynamodb_table" "table" {
@@ -190,16 +190,11 @@ module "acm" {
   validation_method = "DNS"
 }
 
-
-resource "aws_apigatewayv2_api" "example" {
-  name          = "example-api"
-  protocol_type = "HTTP"
-}
-
-resource "aws_apigatewayv2_stage" "example" {
-  api_id      = aws_apigatewayv2_api.example.id
-  name        = "dev" # Stage name, e.g., "dev", "prod", etc.
-  auto_deploy = true  # Enable automatic deployment
+# API Gateway Stage
+resource "aws_apigatewayv2_stage" "http_api" {
+  api_id      = aws_apigatewayv2_api.http_api.id
+  name        = "dev" # Specify your stage (e.g., dev, prod)
+  auto_deploy = true
 }
 
 
@@ -214,10 +209,17 @@ resource "aws_apigatewayv2_domain_name" "http-api" {
   }
 }
 
+# API Mapping (Maps the API and stage to the custom domain)
+resource "aws_apigatewayv2_api_mapping" "http_api" {
+  api_id      = aws_apigatewayv2_api.http_api.id
+  domain_name = aws_apigatewayv2_domain_name.http-api.domain_name
+  stage       = aws_apigatewayv2_stage.http_api.name # Use stage name, not id
+}
+
 # Route 53 record to point the custom domain to API Gateway
 resource "aws_route53_record" "http-api" {
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = "wangxinryan-httpapi.sctp-sandbox.com"
+  name    = aws_apigatewayv2_domain_name.http-api.domain_name
   type    = "A"
 
   alias {
