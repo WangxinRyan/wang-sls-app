@@ -190,12 +190,12 @@ module "acm" {
   validation_method = "DNS"
 }
 
-# API Gateway Stage
-resource "aws_apigatewayv2_stage" "http_api" {
-  api_id      = aws_apigatewayv2_api.http_api.id
-  name        = "dev" # Specify your stage (e.g., dev, prod)
-  auto_deploy = true
-}
+# # API Gateway Stage
+# resource "aws_apigatewayv2_stage" "http_api" {
+#   api_id      = aws_apigatewayv2_api.http_api.id
+#   name        = "dev" # Specify your stage (e.g., dev, prod)
+#   auto_deploy = true
+# }
 
 
 # API Gateway Custom Domain Name
@@ -213,7 +213,7 @@ resource "aws_apigatewayv2_domain_name" "http-api" {
 resource "aws_apigatewayv2_api_mapping" "http_api" {
   api_id      = aws_apigatewayv2_api.http_api.id
   domain_name = aws_apigatewayv2_domain_name.http-api.domain_name
-  stage       = aws_apigatewayv2_stage.http_api.name # Use stage name, not id
+  stage       = aws_apigatewayv2_stage.default.name # Use stage name, not id
 }
 
 # Route 53 record to point the custom domain to API Gateway
