@@ -205,7 +205,7 @@ resource "aws_apigatewayv2_stage" "example" {
 
 # API Gateway Custom Domain Name
 resource "aws_apigatewayv2_domain_name" "http-api" {
-  domain_name = "api.yourdomain.com"
+  domain_name = wangxinryan-httpapi.sctp-sandbox.com
 
   domain_name_configuration {
     certificate_arn = module.acm.acm_certificate_arn
@@ -217,7 +217,7 @@ resource "aws_apigatewayv2_domain_name" "http-api" {
 # Route 53 record to point the custom domain to API Gateway
 resource "aws_route53_record" "http-api" {
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = "api.yourdomain.com"
+  name    = wangxinryan-httpapi.sctp-sandbox.com
   type    = "A"
 
   alias {
